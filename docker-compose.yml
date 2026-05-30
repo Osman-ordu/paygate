@@ -1,0 +1,38 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: corecrud_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: corecrud_user
+      POSTGRES_PASSWORD: ChangeMe_StrongPass123!
+      POSTGRES_DB: corecrud
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - corecrud_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U corecrud_user -d corecrud"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    image: paygate-backend:latest
+    container_name: corecrud_backend
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - "5001:5001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - corecrud_net
+
+networks:
+  corecrud_net:
+    driver: bridge
+
+volumes:
+  postgres_data:

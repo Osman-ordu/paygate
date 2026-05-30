@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from 'typeorm';
 
 @Entity('users')
 export class UserEntity {
@@ -13,4 +13,8 @@ export class UserEntity {
   @Column({ default: 'User' }) profileName: string;
   @Column({ default: 1 }) status: number;
   @Column({ nullable: true }) roleId: string;
+  @Column({ nullable: true }) totpSecret: string;
+  @Column({ default: false }) pendingApproval: boolean;
+
+  @CreateDateColumn() createdAt: Date;
 }

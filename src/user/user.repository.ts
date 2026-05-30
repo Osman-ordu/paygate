@@ -36,7 +36,15 @@ export class UserRepository {
   }
 
   async findAll(): Promise<UserEntity[]> {
-    return this.repo.find();
+    return this.repo.find({ where: { pendingApproval: false } });
+  }
+
+  async findPending(): Promise<UserEntity[]> {
+    return this.repo.find({ where: { pendingApproval: true }, order: { createdAt: 'DESC' } });
+  }
+
+  async countPending(): Promise<number> {
+    return this.repo.count({ where: { pendingApproval: true } });
   }
 
   async findByEmail(email: string): Promise<UserEntity | null> {

@@ -11,7 +11,7 @@ const ALL_MODULES = [
   'WorkingHours', 'Integration', 'ProfileManager', 'UserManager',
   'AutoTransfer', 'LPTransfer', 'LPTransferList', 'LPBalances',
   'LPAccounts', 'LPWhiteListed', 'Refund', 'PaymentServiceManagement',
-  'EODBalance',
+  'EODBalance', 'UserApprovals',
   // pTitle aliases used directly in CDataGrid (case differs from route names)
   'LpAccounts', 'LpTransferList',
 ];

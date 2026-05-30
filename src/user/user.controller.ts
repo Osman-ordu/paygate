@@ -10,6 +10,21 @@ export class UserController {
     return this.userService.getList();
   }
 
+  @Get('pending')
+  async getPending() {
+    return this.userService.getPending();
+  }
+
+  @Get('pending-count')
+  async getPendingCount() {
+    return this.userService.getPendingCount();
+  }
+
+  @Put('approve')
+  async approveUser(@Query('id') id: string) {
+    return this.userService.approveUser(id);
+  }
+
   @Put()
   async editUser(
     @Body()

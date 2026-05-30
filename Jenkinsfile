@@ -79,7 +79,7 @@ pipeline {
             steps {
                 sh """
                     sleep 10
-                    curl -sf http://localhost:5001/ServerHealthCheck | grep -q '"success":true' \
+                    curl -sf https://ceptecash.com/api/ServerHealthCheck | grep -q '"success":true' \
                         && echo "Health check OK" \
                         || (echo "Health check FAILED" && exit 1)
                 """

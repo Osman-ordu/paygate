@@ -1,4 +1,5 @@
 import { Injectable, BadRequestException, UnauthorizedException } from '@nestjs/common';
+import { authenticator } from 'otplib';
 import { AuthRepository } from './auth.repository';
 import { UserRepository } from '../user/user.repository';
 
@@ -14,8 +15,13 @@ export class AuthService {
     if (!user || user.password !== password) {
       throw new UnauthorizedException('Invalid email or password');
     }
-    const code = '123456';
-    this.authRepository.storePendingCode(email, code);
+    if (user.pendingApproval) {
+      throw new UnauthorizedException('Your account is pending admin approval');
+    }
+    if (user.status === 0) {
+      throw new UnauthorizedException('Your account is disabled');
+    }
+    this.authRepository.storePendingCode(email, email);
     return { success: true, data: true };
   }
 
@@ -23,9 +29,12 @@ export class AuthService {
     const user = await this.userRepository.findByEmail(email);
     if (!user) throw new UnauthorizedException('User not found');
 
-    const storedCode = this.authRepository.getPendingCode(email);
-    if (code !== '123456' && code !== storedCode) {
-      throw new UnauthorizedException('Invalid verification code');
+    if (!user.totpSecret) {
+      // Bootstrap: TOTP henüz kurulmamış, 123456 ile geçiş
+      if (code !== '123456') throw new UnauthorizedException('Invalid verification code');
+    } else {
+      const isValid = authenticator.verify({ token: code, secret: user.totpSecret });
+      if (!isValid) throw new UnauthorizedException('Invalid verification code');
     }
 
     this.authRepository.clearPendingCode(email);
@@ -54,7 +63,12 @@ export class AuthService {
     if (await this.userRepository.findByEmail(data.email)) {
       throw new BadRequestException('Email already in use');
     }
-    const user = await this.userRepository.create({ ...data, profileName: 'User', status: 1 });
+    const user = await this.userRepository.create({
+      ...data,
+      profileName: 'User',
+      status: 0,
+      pendingApproval: true,
+    });
     return { success: true, data: { id: user.id } };
   }
 

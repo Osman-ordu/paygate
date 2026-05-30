@@ -24,6 +24,44 @@ export class UserService {
     return { success: true, data: count };
   }
 
+  async getAllUsers() {
+    const users = await this.userRepository.findAllUsers();
+    const data = users.map(({ password, totpSecret, ...u }) => u);
+    return { success: true, data };
+  }
+
+  async rejectUser(id: string) {
+    const user = await this.userRepository.findById(id);
+    if (!user) throw new NotFoundException('User not found');
+    await this.userRepository.update(id, { pendingApproval: false, status: 0 });
+    return { success: true, data: null };
+  }
+
+  async resendApproval(id: string) {
+    const user = await this.userRepository.findById(id);
+    if (!user) throw new NotFoundException('User not found');
+
+    let secret = user.totpSecret;
+    if (!secret) {
+      secret = authenticator.generateSecret();
+      await this.userRepository.update(id, { totpSecret: secret });
+    }
+
+    const otpAuthUrl = authenticator.keyuri(user.email, 'CepteCash', secret);
+    const qrDataUrl = await QRCode.toDataURL(otpAuthUrl);
+    const qrBase64 = qrDataUrl.replace('data:image/png;base64,', '');
+
+    await this.sendQrApprovalMail(user.email, user.name, qrBase64);
+    return { success: true, data: null };
+  }
+
+  async setStatus(id: string, enabled: boolean) {
+    const user = await this.userRepository.findById(id);
+    if (!user) throw new NotFoundException('User not found');
+    await this.userRepository.update(id, { status: enabled ? 1 : 0 });
+    return { success: true, data: null };
+  }
+
   async approveUser(id: string) {
     const user = await this.userRepository.findById(id);
     if (!user) throw new NotFoundException('User not found');

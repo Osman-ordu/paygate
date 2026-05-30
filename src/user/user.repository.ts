@@ -39,6 +39,10 @@ export class UserRepository {
     return this.repo.find({ where: { pendingApproval: false } });
   }
 
+  async findAllUsers(): Promise<UserEntity[]> {
+    return this.repo.find({ order: { createdAt: 'DESC' } });
+  }
+
   async findPending(): Promise<UserEntity[]> {
     return this.repo.find({ where: { pendingApproval: true }, order: { createdAt: 'DESC' } });
   }

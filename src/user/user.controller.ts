@@ -10,6 +10,11 @@ export class UserController {
     return this.userService.getList();
   }
 
+  @Get('all')
+  async getAllUsers() {
+    return this.userService.getAllUsers();
+  }
+
   @Get('pending')
   async getPending() {
     return this.userService.getPending();
@@ -23,6 +28,21 @@ export class UserController {
   @Put('approve')
   async approveUser(@Query('id') id: string) {
     return this.userService.approveUser(id);
+  }
+
+  @Put('reject')
+  async rejectUser(@Query('id') id: string) {
+    return this.userService.rejectUser(id);
+  }
+
+  @Put('resend-approval')
+  async resendApproval(@Query('id') id: string) {
+    return this.userService.resendApproval(id);
+  }
+
+  @Put('set-status')
+  async setStatus(@Query('id') id: string, @Query('enabled') enabled: string) {
+    return this.userService.setStatus(id, enabled === 'true');
   }
 
   @Put()

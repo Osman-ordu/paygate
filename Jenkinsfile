@@ -18,7 +18,7 @@ pipeline {
         IMAGE_NAME  = 'paygate-backend'
         APP_DIR     = '/opt/paygate'
         COMPOSE     = 'docker compose -f /opt/paygate/docker-compose.yml'
-        KEEP_IMAGES = '5'
+        KEEP_IMAGES = '10'
     }
 
     stages {
